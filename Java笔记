@@ -1,0 +1,389 @@
+java集合框架
+Collection 接口是list接口和set接口的父接口：
+其中规定了一些最基础的抽象方法例如add(),remove()等方法，在不同的实现类里有具体的实现
+该接口继承了Iterable接口，目的是为了集合可以创建迭代器，对集合内容进行遍历。
+List接口
+	重要的实现类有ArrayList LinkedList Vector
+	其中除了重写了Collection接口的方法之外还定义了一些default实现的方法 例如sort排序（1.8的新特性）
+		ArrayList实现类
+		1.底层数据结构是object[] 数组，所以存储的值是有序的,特点是添加数据会慢，查询快。
+		2.扩容实现：底层数据结构为数组初始默认数组长度为10，当数组长度不够时使用数组Arrays.copyof()。
+		LinkedList实现类
+		底层数据结构是双向链表，当前节点除了会存储数据，还会指出上一节点和下一节点的位置。Node 特点是添加数据会快，查询慢，默认add（）向链表末端添加，也可以使用addFrist（）向链表前端添加，或者使用add(int i ,E arg1) 指定位置添加，具体实现先判断
+	Set接口
+	重要实现类有Hashset
+Map接口
+	HashMap实现类
+	1.底层实现原理数组加链表的形式，1.8jdk之后当链表长度大于阈值（默认为 8）时，将链表转化为红黑树，以减少搜索时间，每个节点为一个node<K,V> 	其中记录了当前节点key的hash()值、key值。value值、以及下一节点node；
+	2.扩容实现：
+	3.查找操作：
+		Hash碰撞
+
+	ConcurrentHashMap实现类
+	底层实现原理跟HashMap一致，不同的是其在核心操作put()、使用synchronized加锁实现线程安全，但是操作效率慢
+
+
+输入输出流：
+1.字节流和字符流，字节流操作的最小数据单元是8位字节，字符流操作最小单元是16位字节。字节流基类inpusteam、outputsteam，字符流基类Reader、writer。
+2.节点流和处理流，节点流是对一个特定IO设备操作读取和写入数据的流，处理流是对一个已存在的流进行连接和封装的流。例如FileInputsteam 是节点流 printsteam是处理流
+3.转换流 字节流转换字符流 inputsteamReader、outputsteamwriter
+4.File类，操作文件和目录，但是不能访问文件内容
+5.RandomAccessFile随机访问文件内容，自由指定游标位置。
+6.序列化，为了使目标对象保存到磁盘中，或者通过网络传输，对象序列化可以将内存中的java对象转化为平台无关的二进制流，其他程序获取到这样的二进制流也可以转化为原来的java对象。
+	若某个对象实现Serializable接口后，就可以使用ObjectOutpusteam使其序列化，可以将改实现序列化的接口的对象写入到磁盘中，也可以将转化为二进制流的对象内容通过ObjectInputsteam恢复到java对象
+	序列化编号，在序列化java对象时会产生有一个序列化编号，若多次序列化这个对象时，程序会检查该对象是否被序列化过，若序列化过该对象则直接输出序列化编号
+7.NIO 加入了buffer缓存和channel管道，提供了用于将UNICODE字符串映射成字节序列以及逆映射操作类charset，还提供了用于支持非阻塞式输入输出的selector类
+
+
+网络编程 
+InetAddress 获取地址信息
+InetSocketAddress 获取端口信息
+URL 通过URL获取对应地址端口信息，打开输入流，实现网络爬虫
+
+TCP协议 ：是一种可靠的网络协议，在通讯两端建立一个socket，形成虚拟链路，通过虚拟链路通信。(端对端协议)
+Socket编程 ：基于TCP协议，java提供的API,通过socket产生的IO流进行网络通信
+1.服务端Socketserver 用于监听来自客户端的socket链接，若没有则一直处于等待状态。通过accept()方法实现创建服务端的socket
+2.客户端使用Socket 来连接指定服务器
+3.服务器和客户端连接后，使用socket对象创建输入输出流实现服务器与客户端通讯
+
+使用NIO实现非阻塞socket通讯
+java 提供的类：
+实现原理：服务器上所有的Channel通道，包括ServerSocketChannel和SocketChannel都需要向selector注册，
+
+UDP协议：
+
+HttpClient 一种常用的网络编程第三方工具类（支持Http协议的客户端编程工具包）
+使用HttpClient发送请求、接收响应很简单，一般需要如下几步即可。
+1. 创建HttpClient对象。
+2. 创建请求方法的实例，并指定请求URL。如果需要发送GET请求，创建HttpGet对象；如果需要发送POST请求，创建HttpPost对象。
+3. 如果需要发送请求参数，可调用HttpGet、HttpPost共同的setParams(HetpParams params)方法来添加请求参数；对于HttpPost对象而言，也可调用setEntity(HttpEntity entity)方法来设置请求参数。
+4. 调用HttpClient对象的execute(HttpUriRequest request)发送请求，该方法返回一个HttpResponse。
+5. 调用HttpResponse的getAllHeaders()、getHeaders(String name)等方法可获取服务器的响应头；调用HttpResponse的getEntity()方法可获取HttpEntity对象，该对象包装了服务器的响应内容。程序可通过该对象获取服务器的响应内容。
+6. 释放连接。无论执行方法是否成功，都必须释放连接
+
+
+
+	
+多线程
+1.Thread声明周期，new runnable blocked waiting timed_waiting terminated。 
+	线程创建后是new状态，线程调用start()后进入runnable状态，运行过程中如遇到synchronized同步方法块则会进入blocked状态直至获得锁后，waiting状态是线程调用wait（）或者join（）时进入该状态
+	time_waiting线程会进入一个有限时间的等待，线程执行结束后会进入terminated。
+2.线程创建 继承Thread和自定义线程类实现Runnable接口（单继承多执行）
+3.线程中断 interrupt（）中断线程 通知目标线程中断，isinterrupted（）判断线程是否被中断 ，interrupted（）判断当前线程中断状态，并清除中断标志位
+4.线程池：实现线程的复用，创建一个线程当线程运行结束后不会销毁该线程，会回收到线程池。优点：当需要多个线程执行任务时会节省大量CPU和内存资源
+		Executors线程工厂类，提供五种创建线程池的方法newFixedThreadPool（）、newSingleThreadExecutor（）、newCachedThreadPool（）三种普通的线程池，这些实现了线程池对象的方法都使用了ThreadPoolExecutor(int corePoolSize,//指定线程池中线程数量
+                        int maximumPoolSize,//指定最大线程池中线程最大数量
+                        long keepAliveTime,//超过croePoolSize的空闲程序在多久会被销毁
+                        TimeUnit unit,//keepAliveTime的时间单位
+                        BlockingQueue<Runnable> workQueue,//任务队列，尚未被执行的任务
+						ThreadFactory threadFactory,//线程工厂，用于创建线程
+                        RejectedExecutionHandler handler)//当任务太多无法处理时使用的拒绝策略
+						
+		newSingleThreadScheduledExecutor（）、newScheduledThreadPool（）创建出对象为ScheduledExecutorService线程池类可以实现定时周期性触发线程的效果
+并发编程
+
+1、volatile关键字
+	作用保证变量的可见性和有序性，
+	可见性是指当前线程对volatile关键字修饰的变量进行操作时，该变量的变化对其他线程可见，当前线程对变量值进行改变后，会立马将变量值更新到内存公共区中，其他线程再操作这个对象时取到的是最新的值
+	有序性是指jvm为了优化执行速度，会将代码指令重排，在多线程中为了防止多个线程内对同个变量操作的顺序进行重排，使用volatile关键字进行修饰对象。
+2、
+	
+		
+JVM（java运行时内存模型）
+java程序在jvm中有 线程私有区 和 线程公共区
+
+1.私有区域（栈区）包括：程序计数器 虚拟机栈 本地方法栈
+程序计数器：
+
+虚拟机栈 ：入栈出栈 先入后出 虚拟机栈不会变 改变的是java程序 
+	组成部分有 
+		局部变量表（LocalVariableTable）主要存放方法参数和方法内部定义的局部变量，其中局部变量主要记录变量的开始的内存地址，内存长度 变量名称等
+		操作数栈 方法的执行就对应着栈帧在虚拟机栈中的入栈和出栈操作 可以参考反编译class文件 查看java虚拟机指令
+		动态链接 程序中指向对象的实例
+出口 
+
+本地方法栈：java程序中用native 关键字修饰的本地方法 运行的区域就是本地方法栈 也是一种虚拟机栈
+
+2.公共区（堆区）包括:堆和方法区
+方法区：会存储类信息、静态变量
+堆： 存储所有的对象实例和数组、设置参数：启动时分配的内存-Xms 最大内存 -Xmx 、常量(1.8jdk新特性)、JIT(编译后的代码等数据)，垃圾回收主要发生的区域
+
+垃圾回收机制
+GC发生在堆heap区，堆又分为yang区，old区、持久区，其中垃圾回收主要区域在新生代和老年代，新生代中垃圾回收的频率相对较高，对应不同的区域使用的回收算法也不一致，分代回收提升了回收效率；
+
+
+GC算法一共四种
+  引用标记算法：只要类中有被引用的字段或方法，就不会被清除，但是无法处理循环引用，
+  复制算法：又称Minor GC发生在yang区，将需要保留的内存复制到已开单独的区域，然后将yang区清除，优点效率高没有内存碎片，缺点，需要的内存大
+  标记清除算法：发生在old区，将可用的内存标记，然后清除未标记的内存，优点：不需要单独的内存，缺点会有内存碎片，处理效率慢
+  标记清除压缩算法：发生在old区，将可用的内存标记并清除未标记的内存后，进行内存压缩位移 缺点需要位移内存
+
+
+常见JVM异常
+ 内存泄漏：
+ 内存溢出：
+
+JMM（java Memory Model）定义了JVM在计算机内存中的工作方式 
+
+java 虚拟机内存管理
+ 公共区 
+ 堆内存 ： 分为yang 区 old区yang区占三分之一，yang区又新细分为 Eden 和 两个 Survivor 区域，这两个 Survivor 区域分别被命名为 from 和 to。
+ GC过程：
+ 当对象在 Eden ( 包括一个 Survivor 区域，这里假设是 from 区域 ) 出生后，在经过一次 Minor GC 后，如果对象还存活，并且能够被另外一块 Survivor 区域所容纳(上面已经假设为 from 区域，这里应为 to 区域，即 to 区域有足够的内存空间来存储 Eden 和 from 区域中存活的对象 )，则使用复制算法将这些仍然还存活的对象复制到另外一块 Survivor 区域 ( 即 to 区域 ) 中，然后清理所使用过的 Eden 以及 Survivor 区域 ( 即 from 区域 )，并且将这些对象的年龄设置为1，以后对象在 Survivor 区每熬过一次 Minor GC，就将对象的年龄 + 1，当对象的年龄达到某个值时 ( 默认是 15 岁，可以通过参数 -XX:MaxTenuringThreshold 来设定 )，这些对象就会成为老年代。
+
+java堆是GC垃圾回收的主要区域。 GC分为两种： Minor GC、Full GC（也叫做Major GC）.
+
+jvm性能调优 命令
+
+jps 命令  jps是用于查看有权访问的hotspot虚拟机的进程. 当未指定hostid时，默认查看本机jvm进程，否者查看指定的hostid机器上的jvm进程，此时hostid所指机器必须开启jstatd服务。 jps可以列出jvm进程lvmid，主类类名，main函数参数, jvm参数，jar名称等信息。
+
+ jps -v -v: 列出jvm参数, -Xms20m -Xmx50m是启动程序指定的jvm参数 
+
+jinfo 是jdk自带的一个工具，它可以用来查看正在运行的java应用程序的扩展参数（JVM中-X标示的参数）；甚至支持在运行时修改部分参数
+ jinfo -flags +程序端口号 查看运行JVM参数 
+ 
+jstat 命令 Jstat 查看某个Java进程内的线程堆栈信息，用于监控基于HotSpot的JVM，对其堆的使用情况进行实时的命令行的统计，使用jstat我们可以对指定的JVM做如下监控：
+加以下参数，查看对应数据
+class
+用于查看类加载情况的统计
+compiler
+用于查看HotSpot中即时编译器编译情况的统计
+gc
+用于查看JVM中堆的垃圾收集情况的统计
+gccapacity
+用于查看新生代、老生代及持久代的存储容量情况
+gccause
+用于查看垃圾收集的统计情况（这个和-gcutil选项一样），如果有发生垃圾收集，它还会显示最后一次及当前正在发生垃圾收集的原因。
+gcnew
+用于查看新生代垃圾收集的情况
+gcnewcapacity
+用于查看新生代的存储容量情况
+gcold
+用于查看老生代及持久代发生GC的情况
+gcoldcapacity
+用于查看老生代的容量
+gcpermcapacity
+用于查看持久代的容量
+gcutil
+用于查看新生代、老生代及持代垃圾收集的情况
+printcompilation
+HotSpot编译方法的统计
+
+如何判断应用程序是否有内存的问题：
+1. Full GC的频率，时长和效果: 如果Full GC频率较高，比如数秒一次，那么此时程序可能就已经出问题了，因为jvm在Full GC的时候是不响应外部请求的。
+
+如果Full GC时间较长，比如持续数秒，那么此时程序可能就已经出问题了，因为jvm在Full GC的时候是不响应外部请求的。
+
+如果Full GC之后old 区内存没有显著减少，那么程序很可能有内存泄露问题，并且不久将来可能出现outofmemory异常。
+
+如果young gc和full gc能够正常发生，且都能有效回收内存，常驻内存区变化不明显，则说明java内存释放情况正常，垃圾回收及时，java内存泄露的几率就会大大降低。但也不能说明一定没有内存泄露。
+
+2. GC的频率，时长和效果: 如果JVM进行内存回收的频率非常高，比如几乎每数秒中就有一次，每次回收的时间为数秒钟；并且，通过输出还发现每次回收释放的内存非常有限，大多数对象都无法回收。这种现象很大程度上暗示着内存泄漏。(此时可以用“jmap”来获得当前的一个内存映象，看看哪些对象导致这个问题来找出原因)
+
+如果每次GC时间特别长，比如说数十秒，那这种现象很大程度上暗示着内存泄漏。（内存中对象太多，导致遍历时间太长，有时候不好的缓存机制会造成这样的问题）
+
+
+Jmap 是一个可以输出所有内存中对象的工具，甚至可以将VM 中的heap，以二进制输出成文本。打印出某个java进程（使用pid）内存内的，所有‘对象’的情况（如：产生那些对象，及其数量）。
+jstack 是sun JDK 自带的工具，通过该工具可以看到JVM 中线程的运行状况，包括锁等待，线程是否在运行
+执行 jstack [pid] ,线程的所有堆栈信息 tid jvm中的线程id uid CPU中的线程id 根据这个分析
+
+
+
+
+事务：就是一种方法中涉及步骤，一旦其中某一步抛出异常，就会回滚前面已执行的步骤，并把执行步骤涉及的数据库修改液进行复原。
+事务的四大特性 ACID
+A:原子性 事务的方法所有步骤属于一个整体，要么都完成，要么都失败
+C：一致性 事务开始的前后，数据具备一致性，不会对数据的关系产生影响。
+I：隔离性 在并发环境中，不同的事务操作相同的数据，互相不会产生影响
+D: 持久性 事务成功后，对数据的修改会永久保持，不会因为数据库崩溃导致修改提交
+
+事务中可能出现的问题
+1.更新丢失
+2.脏读
+3.不可重复读，一个事务对同一数据在同一执行过程中，先后读了两次，缺得到不同的结果，
+	虚读：在事务A读的两次间隙该数据被其他事务B进行了修改导致读取结果不同 
+	幻读：在事务A在两次查询的时候，事务B对表进行了修改（例如插入，或删除数据），事务A第二次查询结果不同
+	两种区别是 虚读是修改A所读的数据，幻读是没有修改A所读的数据，而是修改了A所读数据的表中内容。
+事务出现问题的解决方案：隔离级别
+1.read uncommitted 读未提交 可以解决更新丢失 但是不能避免脏读和不可重复读
+2.read committed 读提交 还没提交的事务不允许其他事务进行访问。可以避免脏读不可避免重复读（oracle）
+3.repeatable read 重复读 事务在读的时候禁止事务写，不会出现同一事务两次读到不同数据的情况（mysql）
+4.序列化：所有事务必须串行，及不能并行效率低。
+
+分布式事务 
+核心特性CAP
+C：一致性
+A：可用性
+P：分区容错性
+目前实现的分布式事务只能满足CP/AP,因为无法同时满足三种特性因此可以提出BASE理论
+BA：基本可用
+S：软状态
+E：最终一致性
+根据不同的理论可以有以下方式实现分布式事务
+
+消息最终一致性：消息发送一致性：是指产生消息的业务动作与消息发送的一致。也就是说，如果业务操作成功，那么由这个业务操作所产生的消息一定要成功投递出去，否则就丢消息。
+
+TCC：TCC事务机制相对于传统事务机制(X/OpenXATwo-Phase-Commit)，其特征在于它不依赖资源管理器(RM)对XA的支持，而是通过对（由业务系统提供的）业务逻辑的调度来实现分布式事务。
+TCC服务是由Try/Confirm/Cancel业务构成的，其Try/Confirm/Cancel业务在执行时，会访问资源管理器(RM)来存取数据。这些存取操作，必须要参与RM本地事务，以使其更改的数据要么都commit，要么都rollback。TCC事务机制需要业务系统提供三段业务逻辑：初步操作Try、确认操作Confirm、取消操作Cancel。
+
+最大努力通知型：最大努力通知型( Best-effort delivery)是最简单的一种柔性事务，适用于一些最终一致性时间敏感度低的业务，且被动方处理结果不影响主动方的处理结果，也是借助MQ消息系统来进行事务控制
+
+
+消息中间件：常用的中间件kafak、activemq、rabbitmq，基于硬件的消息中间件solace，消息中间件作用
+
+
+
+
+Spring源码解析
+IOC 反转控制/依赖注入 
+IOC容器
+向IOC容器中注册组件方法
+1.包扫描+组件标注注解（@ComponentScan+@Controller,@Service,@Repository,@Component注解的类）比较局限只能实现自定义的类
+	@Component不明确层级的组件
+	@Qualifier service层存在多个实现类时，使用该注解进行确定注入组件的名称
+2.在config配置文件中使用@Bean注解
+3.@Import(快捷给容器注入一个组件)
+	a.@import（要导入容器的组件），容器会自动注册这个主键，id默认是全类名
+	b.importSelector:返回需要导入的全类名数组
+	c.ImportBeanDefinitionRegistrar手动注册bean到容器中
+4.使用FactoryBean（工厂Bean）
+
+bean声明周期管理
+1.构造 若bean组件为单例，则IOC容器创建时就会运行构造函数创建对象，若
+2.初始化之前 实现BeanPostProcessor接口postProcessBeforeInitialization方法
+3.初始化 @Bean注解里添加initMethod参数；在bean组件中执行InitializingBean并实现afterPropertiesSet方法；在bean组件中添加自定义init方法并添加@PostConstruct注解
+4.初始化之后 实现BeanPostProcessor接口postProcessAfterInitialization方法
+5.销毁  @Bean注解里添加destroyMethod参数；在bean组件中执行DisposableBean并实现destroy方法；在bean组件中添加自定义init方法并添加@PreDestroy注解
+
+Spring底层对BeanPostProcessor的实现类：AsyncAnnotationBeanPostProcessor 是注解@Async的实现，ApplicationContextAwareProcessor，等
+
+bean赋值
+@Value 1.可以直接添加基础类型参数 2.可以使用#{} 3.可以使用${}将properties里的k/v获取到，前提是配置类上需要加上@PropertySource将配置文件注入到容器中
+
+bean注入
+@Autowired
+@Resource
+@Inject has no 'required' attribute; can be used with Java8’s Optional instead
+切换容器中组件 @profile
+动态切换配置
+
+AOP 面向接口
+ 实现步骤
+ *  1.编写业务逻辑代码
+ *  2.编写切面类（使用spring的aop依賴）@Aspect
+ *  3.给切面类标识何时和位置运行 @Before（） @After @AfterReturning @AfterThrowing
+ *  4.将目标业务逻辑类与切面类注入到Spring容器中@Component
+ *  5.在配置类中增加启动切面编程注解 @EnableAspectJAutoProxy
+
+@EnableAspectJAutoProxy
+
+@Cacheable标注的方法，Spring在每次执行前都会检查Cache中是否存在相同key的缓存元素，如果存在就不再执行该方法，而是直接从缓存中获取结果进行返回，否则才会执行并将返回结果存入指定的缓存中
+@CachePut也可以声明一个方法支持缓存功能。与@Cacheable不同的是使用@CachePut标注的方法在执行前不会去检查缓存中是否存在之前执行过的结果，而是每次都会执行该方法，并将执行结果以键值对的形式存入指定的缓存中。
+@CacheEvict是用来标注在需要清除缓存元素的方法或类上的。当标记在一个类上时表示其中所有的方法的执行都会触发缓存的清除操作。
+
+Spring Boot ：快速启动
+
+SpringApplication启动类
+run(); 启动应用
+多配置文件启动方法：
+	1.SpringApplication.setAdditionalProfiles(自定义启动时加载的配置文件); 
+	2.在配置文件中加入Spring.profiles.active:自定义配置文件名称;
+	3.在主配置文件中加入spring.profiles.include:自定义配置文件名称; 
+
+Spring boot与 Spring Cloud的关系，spring boot用于单个微服务的快速开发构建，Spring Cloud关注全局的微服务治理框架
+
+Dubbo与SpringCloud的对比
+1.服务调用方式不同，Dubbo使用的是远程过程调用RPC，cloud使用HTTP REST API，Rest调用性能不如RPC，但是比RPC灵活，提供方和调用方依赖性小
+2.服务注册方式不同，dubbo使用zookeeper，cloud使用Eureka
+3.dubbo很多功能需要依赖其他第三方中间件，不太容易开发维护，只是RPC框架
+
+
+Spring Cloud 一站式分布式架构集合 API https://springcloud.cc/spring-cloud-dalston.html
+
+Eureka服务注册及发现
+
+Ribbon服务的负载均衡 
+ 配置Ribbon：饥饿加载可以解决服务第一次启动
+ @LoadBalanced 负载均衡配置注解，默认使用的轮训的方式,分别将请求按先后顺序发给不同的服务提供者，保证每一个服务提供者访问一次
+ 
+Feign
+
+Hystrix服务熔断
+
+Zuul服务网关
+
+Spring Cloud Config 分布式配置
+
+
+
+Mysql
+Linux安装配置安装配置: 注意修改字符编码格式，在my,cnf文件修改，show variables like '%char%';查看当前字符集配置
+[mysqld] 
+character_set_server=utf8
+character_set_client=utf8
+collation_server=utf8_general_ci
+
+原理
+ 逻辑分层：
+	连接层：与客户端链接服务
+	服务层：提供用户使用的接口，提供Sql优化器
+	引擎层：innoDB 行锁，事务优先用于高并发操作 MyISAM 表锁，性能优先 
+			查询数据库支持哪些引擎：show engines
+			查看当前数据库使用的引擎 ：show variables like '%storage_engine%'
+			创建表时也可指定使用那个引擎 ： CREATE TABLE FFRIST ()ENGINES=‘MyISAM’，同时还可制定 自增方式AUTO_INCREMENT=1/字符集DEFULT_CHARSET=UTF8
+	存储层：存储数据
+数据库windows注册服务
+ 			mysqld.exe –install MySql –defaults-file="F:\MYSQL\my.ini"
+SQL优化    为什么要优化：性能低、执行时间长、等待时间长、SQL语句欠佳（连接查询）、索引失效、服务器参数设置不合理（缓冲区、县城乡）
+	sql的执行编写的过程和解析的过程不一致，先解析from..on..join..where..group by..having..后解析select dinstinct..order by..
+	
+sql优化方式：增加索引
+	索引：相当于书的目录，index是帮助Mysql高效查询数据的数据结构，索引是数据结构，mysql使用的索引是树（B树类似二叉树小左大右），索引列指向的是对应数据行的硬件地址（16进制0-9、a-f），使用索引查找先找到硬件地址，
+	索引的缺点：
+			创建索引需要内存/硬盘，一般放再硬盘，本身很大。
+			不适用创建索引的情况：数据量少、字段频繁更新、很少进行查询的字段
+			索引创建会提高查询效率，但是会降低增删改的效率
+	优点：提高查询效率、降低CPU使用率在进行查找排序时索引已经排好序只需要输出、
+	B树一般常用的是B+树，特点是所有的数据都存放在叶节点中，B+树的查找任意数据的次数是n次（B+树的高度），三层的B+树可以存放百万条数
+	
+	索引：
+		分类：
+			单值索引 ： 单列，一个表可以有多个
+			主键索引 ： 主键自动创建，不能重复、字段值不能为null
+			唯一索引 ： 手动创建，字段值 不能重复，但是值可以为空
+			复合索引 ： 多列构成的索引相当于二级目录
+		创建索引方法 
+			1.create 索引类型（index、unique index）索引名 on 表名 （字段,多个字段为复合索引）
+			2.alter table 表名 索引类型 索引名 （字段）
+		查询索引 show index from 表名
+		删除索引 drop index 索引名 on 表名
+	
+
+			
+Mybatis 
+<resultMap> 结果解析
+<association> 子查询操作标签
+<collection> 结果中若有集合则使用该标签解析，select属性可以提供子查询操作
+<forearch> 批量操作 查询多条数据 保存多条数据
+若实体类中的字段名称与数据库中表字段名不一致怎么解决？
+1）sql中使用别名
+2）打开mybatis的驼峰命名规则，就会将数据库字段名映射为驼峰命名规则，前提是数据库中字段名是last_name
+3) 修改mapper映射文件，将sql结果使用高级结果集映射<resultMap>
+
+git 
+初始化 git init
+设置签名 2.git config user.name XX ; git conifg user.email XX@XX.com 设置项目级别签名
+提交到暂存区 git add 文件
+撤销提交暂存区 git reset HEAD 文件/ git 
+提交到本地库 git commit -m "注解" 文件
+
+自定义注解
+1.创建自定义注解类
+2.添加元注解 @Retention定义注解的生命周期RetentionPolicy.RUNTIME @Target定义注解的作用于参数传入枚举类ElementType.TYPE类上八个类型
+3.定义注解需要的成员变量
+	语法：成员以无参无异常方式声明
+		可以使用defult设置默认值
+		成员类型只能使用原始java类型String class 
+		如果只有一个成员变量则只能使用value（）命名，可以没有成员呢就是一个表示注解
+
+
